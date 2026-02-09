@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offensive Security Portfolio - Windows 95</title>
+    <style>
+        @font-face {
+            font-family: 'MS Sans Serif';
+            src: url('data:font/woff2;base64,d09GMgABAAAAABGkABAAAAAAI0gAABFJAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbgTIcg0oGYACCXAhECYM8EQwKgeN4gbwRC4NUAAE2AiQDhxIEIAWFfAeFGxshG8mOw3bYuAngIJBxKLeGG2p7+P/9fvvc9773zfzPZpppEk3bJJ5IWqRCguZJJBKJUAnRRvqnTqTzIObTaLR5+v/XTPoDGABY/v8ntbmZmV273cxsBiAIgqDYzex2wWpmM7OZ2cxsZjazmZnNzGY2M/OfqTudTnWq6lT1VPWpuv/3O/f+c5/vfOd7z/ec73zf+T7f5/uc7/Oc5zzn+ZznPM/z/P8BoIgQBYAAP//zfw==') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Arial, sans-serif;
+            font-size: 11px;
+            overflow: hidden;
+            background: #008080 url('https://wallpapers.com/images/hd/vaporwave-microsoft-windows-95-r1ebdp3re4f10s5h.webp') center/cover no-repeat fixed;
+            height: 100vh;
+            cursor: default;
+            user-select: none;
+            -webkit-font-smoothing: none;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Desktop */
+        .desktop {
+            height: calc(100vh - 28px);
+            position: relative;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-content: flex-start;
+        }
+
+        /* Desktop Icons - Exact Windows 95 sizing */
+        .desktop-icon {
+            width: 75px;
+            padding: 2px;
+            margin: 0 0 8px 0;
+            cursor: default;
+            text-align: center;
+            outline: none;
+        }
+
+        .desktop-icon:focus {
+            outline: 1px dotted rgba(255, 255, 255, 0.5);
+        }
+
+        .desktop-icon.selected .desktop-icon-label {
+            background: #000080;
+            color: white;
+        }
+
+        .desktop-icon img, .desktop-icon svg {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 2px auto;
+            display: block;
+        }
+
+        .desktop-icon svg {
+            image-rendering: auto;
+        }
+
+        .desktop-icon-label {
+            color: white;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+            font-size: 11px;
+            padding: 1px 2px;
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+
+        /* Window Styles - Authentic Windows 95 */
+        .window {
+            position: absolute;
+            background: #c0c0c0;
+            box-shadow: 
+                inset -1px -1px 0 #000000,
+                inset 1px 1px 0 #dfdfdf,
+                inset -2px -2px 0 #808080,
+                inset 2px 2px 0 #ffffff;
+            min-width: 200px;
+            min-height: 100px;
+            display: none;
+        }
+
+        .window.active {
+            z-index: 1000;
+        }
+
+        .window-title-bar {
+            background: linear-gradient(to right, #000080, #1084d0);
+            padding: 2px 2px 2px 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            height: 18px;
+        }
+
+        .window.inactive .window-title-bar {
+            background: linear-gradient(to right, #808080, #b5b5b5);
+        }
+
+        .window-title {
+            color: white;
+            font-weight: bold;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            letter-spacing: 0;
+        }
+
+        .window-title img, .window-title svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .window-title svg {
+            flex-shrink: 0;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 2px;
+        }
+
+        .window-button {
+            width: 16px;
+            height: 14px;
+            background: #c0c0c0;
+            box-shadow: 
+                inset -1px -1px 0 #000000,
+                inset 1px 1px 0 #ffffff,
+                inset -2px -2px 0 #808080,
+                inset 2px 2px 0 #dfdfdf;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            padding-bottom: 2px;
+        }
+
+        .window-button:active {
+            box-shadow: 
+                inset 1px 1px 0 #000000,
+                inset -1px -1px 0 #ffffff,
+                inset 2px 2px 0 #808080,
+                inset -2px -2px 0 #dfdfdf;
+            padding: 2px 0 0 2px;
+        }
+
+        .window-content {
+            padding: 8px;
+            background: white;
+            height: calc(100% - 18px);
+            overflow: auto;
+        }
+
+        /* Taskbar - Exact Windows 95 styling */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 28px;
+            background: #c0c0c0;
+            box-shadow: inset 0 1px 0 #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            gap: 0;
+        }
+
+        .start-button {
+            height: 22px;
+            padding: 0 5px 0 3px;
+            background: #c0c0c0;
+            box-shadow: 
+                inset -1px -1px 0 #000000,
+                inset 1px 1px 0 #ffffff,
+                inset -2px -2px 0 #808080,
+                inset 2px 2px 0 #dfdfdf;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            margin-right: 2px;
+            font-size: 11px;
+        }
+
+        .start-button:active,
+        .start-button.active {
+            box-shadow: 
+                inset 1px 1px 0 #000000,
+                inset -1px -1px 0 #ffffff,
+                inset 2px 2px 0 #808080,
+                inset -2px -2px 0 #dfdfdf;
+            padding: 2px 3px 0 5px;
+        }
+
+        .start-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .taskbar-divider {
+            width: 2px;
+            height: 22px;
+            box-shadow: 
+                inset -1px 0 0 #808080,
+                inset 1px 0 0 #ffffff;
+            margin: 0 2px;
+        }
+
+        .taskbar-buttons {
+            display: flex;
+            gap: 2px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .taskbar-button {
+            height: 22px;
+            padding: 0 6px;
+            background: #c0c0c0;
+            box-shadow: 
+                inset -1px -1px 0 #000000,
+                inset 1px 1px 0 #ffffff,
+                inset -2px -2px 0 #808080,
+                inset 2px 2px 0 #dfdfdf;
+            cursor: pointer;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+        }
+
+        .taskbar-button.active {
+            box-shadow: 
+                inset 1px 1px 0 #000000,
+                inset -1px -1px 0 #ffffff,
+                inset 2px 2px 0 #808080,
+                inset -2px -2px 0 #dfdfdf;
+        }
+
+        .taskbar-button img, .taskbar-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .taskbar-button svg {
+            flex-shrink: 0;
+        }
+
+        .taskbar-clock {
+            height: 22px;
+            padding: 0 8px;
+            box-shadow: 
+                inset 1px 1px 0 #808080,
+                inset -1px -1px 0 #ffffff;
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            margin-left: 2px;
+        }
+
+        /* Start Menu */
+        .start-menu {
+            position: fixed;
+            bottom: 30px;
+            left: 2px;
+            width: 180px;
+            background: #c0c0c0;
+            box-shadow: 
+                inset -1px -1px 0 #000000,
+                inset 1px 1px 0 #dfdfdf,
+                inset -2px -2px 0 #808080,
+                inset 2px 2px 0 #ffffff,
+                2px 2px 4px rgba(0,0,0,0.4);
+            display: none;
+        }
+
+        .start-menu.show {
+            display: flex;
+        }
+
+        .start-menu-sidebar {
+            background: linear-gradient(180deg, #000080 0%, #0c9bd1 100%);
+            color: white;
+            padding: 4px;
+            font-size: 20px;
+            font-weight: bold;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            width: 24px;
+            letter-spacing: 1px;
+        }
+
+        .start-menu-items {
+            flex: 1;
+            padding: 2px;
+        }
+
+        .start-menu-item {
+            padding: 4px 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+
+        .start-menu-item:hover {
+            background: #000080;
+            color: white;
+        }
+
+        .start-menu-item img, .start-menu-item svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .start-menu-item svg {
+            flex-shrink: 0;
+        }
+
+        .start-menu-separator {
+            height: 1px;
+            background: #808080;
+            box-shadow: 0 1px 0 #ffffff;
+            margin: 2px 0;
+        }
+
+        /* Content Styles */
+        h1 {
+            color: #000080;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #808080;
+        }
+
+        h2 {
+            color: #000000;
+            font-size: 11px;
+            font-weight: bold;
+            margin: 12px 0 6px 0;
+        }
+
+        h3 {
+            font-size: 11px;
+            font-weight: bold;
+            margin: 8px 0 4px 0;
+        }
+
+        p {
+            margin-bottom: 8px;
+            line-height: 1.5;
+            font-size: 11px;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        li {
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #000080;
+            color: white;
+            padding: 2px 6px;
+            font-size: 10px;
+            margin: 2px 2px 2px 0;
+            font-weight: bold;
+        }
+
+        .badge-red {
+            background: #c00000;
+        }
+
+        .badge-green {
+            background: #008000;
+        }
+
+        .exploit-item {
+            margin: 12px 0;
+            padding: 8px;
+            background: #f0f0f0;
+            border: 1px solid #808080;
+        }
+
+        .exploit-title {
+            font-weight: bold;
+            color: #c00000;
+            margin-bottom: 4px;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            background: #f0f0f0;
+            padding: 1px 4px;
+            font-size: 10px;
+        }
+
+        .section-box {
+            background: #f0f0f0;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #808080;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 16px;
+            height: 16px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #dfdfdf;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            box-shadow: 
+                inset -1px -1px 0 #000000,
+                inset 1px 1px 0 #ffffff,
+                inset -2px -2px 0 #808080,
+                inset 2px 2px 0 #dfdfdf;
+        }
+
+        ::-webkit-scrollbar-button {
+            background: #c0c0c0;
+            box-shadow: 
+                inset -1px -1px 0 #000000,
+                inset 1px 1px 0 #ffffff,
+                inset -2px -2px 0 #808080,
+                inset 2px 2px 0 #dfdfdf;
+            height: 16px;
+            width: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Desktop -->
+    <div class="desktop" id="desktop">
+        <!-- Desktop Icons -->
+        <div class="desktop-icon" tabindex="0" data-window="about">
+            <svg width="32" height="32" viewBox="0 0 32 32" style="display: block; margin: 0 auto;">
+                <defs>
+                    <linearGradient id="userGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4169e1;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <rect x="4" y="4" width="24" height="24" fill="url(#userGrad)" stroke="#000" stroke-width="0.5"/>
+                <circle cx="16" cy="12" r="5" fill="#ffd700" stroke="#000" stroke-width="0.5"/>
+                <path d="M8 24 Q8 18 16 18 Q24 18 24 24 Z" fill="#ffd700" stroke="#000" stroke-width="0.5"/>
+                <circle cx="14" cy="11" r="1" fill="#000"/>
+                <circle cx="18" cy="11" r="1" fill="#000"/>
+                <path d="M13 14 Q16 16 19 14" stroke="#000" stroke-width="0.5" fill="none"/>
+            </svg>
+            <div class="desktop-icon-label">About Me</div>
+        </div>
+        
+        <div class="desktop-icon" tabindex="0" data-window="exploits">
+            <svg width="32" height="32" viewBox="0 0 32 32" style="display: block; margin: 0 auto;">
+                <defs>
+                    <radialGradient id="bombGrad">
+                        <stop offset="0%" style="stop-color:#ff4444;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#8b0000;stop-opacity:1" />
+                    </radialGradient>
+                </defs>
+                <ellipse cx="16" cy="21" rx="2" ry="1" fill="#333" opacity="0.3"/>
+                <circle cx="16" cy="20" r="8" fill="url(#bombGrad)" stroke="#000" stroke-width="0.5"/>
+                <circle cx="13" cy="18" r="2" fill="#ff6666" opacity="0.6"/>
+                <rect x="14.5" y="6" width="3" height="10" fill="#654321" stroke="#000" stroke-width="0.5"/>
+                <ellipse cx="16" cy="6" rx="2" ry="1.5" fill="#ffa500"/>
+                <path d="M15 5 Q16 2 17 5" stroke="#ff6600" stroke-width="1" fill="none"/>
+                <circle cx="16" cy="3" r="1" fill="#ffff00"/>
+            </svg>
+            <div class="desktop-icon-label">Exploits</div>
+        </div>
+        
+        <div class="desktop-icon" tabindex="0" data-window="tools">
+            <svg width="32" height="32" viewBox="0 0 32 32" style="display: block; margin: 0 auto;">
+                <defs>
+                    <linearGradient id="toolGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#c0c0c0;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#808080;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <rect x="7" y="15" width="4" height="13" fill="url(#toolGrad)" stroke="#000" stroke-width="0.5"/>
+                <rect x="6" y="13" width="6" height="4" fill="#8b4513" stroke="#000" stroke-width="0.5"/>
+                <rect x="7" y="14" width="4" height="1" fill="#a0522d"/>
+                <path d="M20 8 L28 8 L28 11 L20 11 Z" fill="url(#toolGrad)" stroke="#000" stroke-width="0.5" transform="rotate(45 24 9.5)"/>
+                <circle cx="24" cy="10" r="3.5" fill="#c0c0c0" stroke="#000" stroke-width="0.5"/>
+                <circle cx="24" cy="10" r="2" fill="none" stroke="#000" stroke-width="0.5"/>
+                <path d="M22 9 L26 9 M24 7 L24 11" stroke="#666" stroke-width="0.5"/>
+            </svg>
+            <div class="desktop-icon-label">Security Tools</div>
+        </div>
+        
+        <div class="desktop-icon" tabindex="0" data-window="videos">
+            <svg width="32" height="32" viewBox="0 0 32 32" style="display: block; margin: 0 auto;">
+                <defs>
+                    <linearGradient id="videoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff0000;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#8b0000;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <rect x="4" y="8" width="24" height="16" rx="1" fill="#000" stroke="#333" stroke-width="0.5"/>
+                <rect x="5" y="9" width="22" height="14" fill="url(#videoGrad)"/>
+                <polygon points="13,12 13,21 21,16.5" fill="#fff" stroke="#000" stroke-width="0.5"/>
+                <circle cx="8" cy="11" r="1" fill="#ff0000"/>
+            </svg>
+            <div class="desktop-icon-label">Video Player</div>
+        </div>
+        
+        <div class="desktop-icon" tabindex="0" data-window="contact">
+            <svg width="32" height="32" viewBox="0 0 32 32" style="display: block; margin: 0 auto;">
+                <defs>
+                    <linearGradient id="mailGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ffffcc;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ffff99;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <rect x="4" y="9" width="24" height="15" rx="0.5" fill="url(#mailGrad)" stroke="#000" stroke-width="0.5"/>
+                <path d="M4 9 L16 18 L28 9" fill="none" stroke="#000" stroke-width="0.5"/>
+                <path d="M4 9 L4 24 L16 18" fill="none" stroke="#000" stroke-width="0.3"/>
+                <path d="M28 9 L28 24 L16 18" fill="none" stroke="#000" stroke-width="0.3"/>
+                <rect x="10" y="13" width="12" height="1" fill="#dc143c"/>
+                <rect x="10" y="15" width="12" height="1" fill="#4169e1"/>
+                <rect x="10" y="17" width="8" height="1" fill="#32cd32"/>
+            </svg>
+            <div class="desktop-icon-label">Contact</div>
+        </div>
+        
+        <div class="desktop-icon" tabindex="0" data-window="terminal">
+            <svg width="32" height="32" viewBox="0 0 32 32" style="display: block; margin: 0 auto;">
+                <defs>
+                    <linearGradient id="termGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <rect width="32" height="32" rx="1" fill="url(#termGrad)" stroke="#333" stroke-width="0.5"/>
+                <rect x="2" y="4" width="28" height="2" fill="#0000aa"/>
+                <text x="5" y="12" fill="#00ff00" font-family="monospace" font-size="6" font-weight="bold">C:\></text>
+                <rect x="4" y="15" width="2" height="6" fill="#00ff00"/>
+                <path d="M10 16 L14 19 L10 22" stroke="#00ff00" stroke-width="1.5" fill="none"/>
+                <rect x="16" y="18" width="10" height="1" fill="#00aa00" opacity="0.5"/>
+            </svg>
+            <div class="desktop-icon-label">Terminal</div>
+        </div>
+        
+        <div class="desktop-icon" tabindex="0" data-window="recycle">
+            <svg width="32" height="32" viewBox="0 0 32 32" style="display: block; margin: 0 auto;">
+                <defs>
+                    <linearGradient id="binGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#e0e0e0;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#a0a0a0;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <rect x="9" y="13" width="14" height="15" rx="1" fill="url(#binGrad)" stroke="#000" stroke-width="0.5"/>
+                <rect x="10" y="10" width="12" height="3" fill="#808080" stroke="#000" stroke-width="0.5"/>
+                <rect x="13" y="8" width="6" height="2" rx="1" fill="#666" stroke="#000" stroke-width="0.5"/>
+                <rect x="12" y="16" width="2" height="8" fill="#4169e1" opacity="0.3"/>
+                <rect x="18" y="16" width="2" height="8" fill="#4169e1" opacity="0.3"/>
+                <rect x="15" y="11" width="2" height="1" fill="#999"/>
+            </svg>
+            <div class="desktop-icon-label">Recycle Bin</div>
+        </div>
+    </div>
+
+    <!-- About Window -->
+    <div class="window active" id="about-window" style="width: 500px; height: 400px; top: 60px; left: 80px; display: block;">
+        <div class="window-title-bar">
+            <div class="window-title">
+                <svg width="16" height="16" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="userGradSmall" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#4169e1;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="4" y="4" width="24" height="24" fill="url(#userGradSmall)" stroke="#000" stroke-width="0.5"/>
+                    <circle cx="16" cy="12" r="5" fill="#ffd700" stroke="#000" stroke-width="0.5"/>
+                    <path d="M8 24 Q8 18 16 18 Q24 18 24 24 Z" fill="#ffd700" stroke="#000" stroke-width="0.5"/>
+                </svg>
+                <span>About Me</span>
+            </div>
+            <div class="window-controls">
+                <div class="window-button minimize">_</div>
+                <div class="window-button maximize">□</div>
+                <div class="window-button close">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <h1>Offensive Security Professional</h1>
+            
+            <p>Penetration tester and security researcher specializing in:</p>
+            
+            <div class="section-box">
+                <span class="badge badge-red">Red Team Operations</span>
+                <span class="badge">Exploit Development</span>
+                <span class="badge badge-red">Vulnerability Research</span>
+                <span class="badge">Web Application Security</span>
+                <span class="badge badge-red">Active Directory</span>
+                <span class="badge">Social Engineering</span>
+            </div>
+            
+            <h2>Professional Background</h2>
+            <p>5+ years of experience conducting authorized penetration tests, red team engagements, and security assessments for enterprise clients across multiple industries.</p>
+            
+            <h2>Areas of Expertise</h2>
+            <ul>
+                <li>Network penetration testing and infrastructure assessments</li>
+                <li>Web application security testing (OWASP Top 10)</li>
+                <li>Active Directory attacks and post-exploitation</li>
+                <li>Custom exploit development and weaponization</li>
+                <li>Phishing campaigns and social engineering</li>
+                <li>Wireless network security assessments</li>
+            </ul>
+            
+            <p>Committed to ethical hacking practices and responsible disclosure.</p>
+        </div>
+    </div>
+
+    <!-- Exploits Window -->
+    <div class="window" id="exploits-window" style="width: 600px; height: 480px; top: 90px; left: 140px;">
+        <div class="window-title-bar">
+            <div class="window-title">
+                <svg width="16" height="16" viewBox="0 0 32 32">
+                    <defs>
+                        <radialGradient id="bombGradSmall">
+                            <stop offset="0%" style="stop-color:#ff4444;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#8b0000;stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+                    <circle cx="16" cy="20" r="8" fill="url(#bombGradSmall)" stroke="#000" stroke-width="0.5"/>
+                    <rect x="14.5" y="6" width="3" height="10" fill="#654321" stroke="#000" stroke-width="0.5"/>
+                    <ellipse cx="16" cy="6" rx="2" ry="1.5" fill="#ffa500"/>
+                </svg>
+                <span>Exploits & Research</span>
+            </div>
+            <div class="window-controls">
+                <div class="window-button minimize">_</div>
+                <div class="window-button maximize">□</div>
+                <div class="window-button close">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <h1>Security Research & Exploits</h1>
+            
+            <div class="exploit-item">
+                <div class="exploit-title">CVE-2023-XXXXX - Remote Code Execution</div>
+                <p><strong>Target:</strong> Enterprise Web Application Framework</p>
+                <p><strong>Severity:</strong> <span class="badge badge-red">CRITICAL</span> CVSS 9.8</p>
+                <p><strong>Description:</strong> Discovered unauthenticated RCE vulnerability in popular web framework affecting versions 2.0-4.5. Allows arbitrary code execution via deserialization attack.</p>
+                <p><strong>Impact:</strong> Full system compromise, data exfiltration</p>
+                <p><strong>Status:</strong> Responsibly disclosed, patch released</p>
+            </div>
+            
+            <div class="exploit-item">
+                <div class="exploit-title">Active Directory Kerberos Delegation Attack Chain</div>
+                <p><strong>Type:</strong> Post-Exploitation Technique</p>
+                <p><strong>Severity:</strong> <span class="badge badge-red">HIGH</span> CVSS 8.1</p>
+                <p><strong>Description:</strong> Developed attack methodology combining unconstrained delegation abuse with NTLM relay to achieve domain admin escalation.</p>
+                <p><strong>Tools Used:</strong> Rubeus, Impacket, Responder</p>
+                <p><strong>Mitigation:</strong> Disable unconstrained delegation, enable EPA</p>
+            </div>
+            
+            <div class="exploit-item">
+                <div class="exploit-title">SQL Injection to System Shell</div>
+                <p><strong>Target:</strong> Legacy Financial Application</p>
+                <p><strong>Severity:</strong> <span class="badge badge-red">CRITICAL</span> CVSS 9.1</p>
+                <p><strong>Description:</strong> Exploited SQL injection in login form to enable <code>xp_cmdshell</code> and achieve command execution on underlying Windows server.</p>
+                <p><strong>Technique:</strong> Boolean-based blind SQLi → privilege escalation → RCE</p>
+            </div>
+            
+            <h2>Research Publications</h2>
+            <ul>
+                <li>"Advanced Phishing Techniques Using OAuth Token Theft" - BlackHat 2024</li>
+                <li>"Bypassing EDR Solutions with Process Injection" - DEF CON 32</li>
+                <li>"Exploiting Misconfigurations in Azure AD" - BSides 2023</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Security Tools Window -->
+    <div class="window" id="tools-window" style="width: 550px; height: 450px; top: 120px; left: 200px;">
+        <div class="window-title-bar">
+            <div class="window-title">
+                <svg width="16" height="16" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="toolGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#c0c0c0;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#808080;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="7" y="15" width="4" height="13" fill="url(#toolGradSmall)" stroke="#000" stroke-width="0.5"/>
+                    <rect x="6" y="13" width="6" height="4" fill="#8b4513" stroke="#000" stroke-width="0.5"/>
+                    <circle cx="24" cy="10" r="3.5" fill="#c0c0c0" stroke="#000" stroke-width="0.5"/>
+                </svg>
+                <span>Security Tools Arsenal</span>
+            </div>
+            <div class="window-controls">
+                <div class="window-button minimize">_</div>
+                <div class="window-button maximize">□</div>
+                <div class="window-button close">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <h1>Offensive Security Toolkit</h1>
+            
+            <h2>Reconnaissance & OSINT</h2>
+            <ul>
+                <li><strong>Nmap</strong> - Network discovery and vulnerability scanning</li>
+                <li><strong>Masscan</strong> - Fast port scanner for large-scale assessments</li>
+                <li><strong>theHarvester</strong> - Email and subdomain enumeration</li>
+                <li><strong>Recon-ng</strong> - Web reconnaissance framework</li>
+                <li><strong>Shodan</strong> - IoT and internet-exposed services discovery</li>
+            </ul>
+            
+            <h2>Exploitation Frameworks</h2>
+            <ul>
+                <li><strong>Metasploit Framework</strong> - Penetration testing platform</li>
+                <li><strong>Cobalt Strike</strong> - Advanced threat emulation (licensed)</li>
+                <li><strong>Empire/Starkiller</strong> - Post-exploitation framework</li>
+                <li><strong>SQLmap</strong> - Automatic SQL injection exploitation</li>
+            </ul>
+            
+            <h2>Active Directory / Windows</h2>
+            <ul>
+                <li><strong>BloodHound</strong> - AD attack path analysis</li>
+                <li><strong>Rubeus</strong> - Kerberos abuse toolkit</li>
+                <li><strong>Mimikatz</strong> - Credential extraction</li>
+                <li><strong>Impacket</strong> - Python classes for network protocols</li>
+                <li><strong>PowerView</strong> - AD enumeration and exploitation</li>
+                <li><strong>CrackMapExec</strong> - Network protocol enumeration</li>
+            </ul>
+            
+            <h2>Web Application Testing</h2>
+            <ul>
+                <li><strong>Burp Suite Professional</strong> - Web vulnerability scanner</li>
+                <li><strong>OWASP ZAP</strong> - Web app security scanner</li>
+                <li><strong>Nikto</strong> - Web server scanner</li>
+                <li><strong>ffuf</strong> - Fast web fuzzer</li>
+                <li><strong>Nuclei</strong> - Vulnerability scanner with templates</li>
+            </ul>
+            
+            <h2>Custom Tools</h2>
+            <ul>
+                <li><strong>ADRecon.py</strong> - Custom AD enumeration script</li>
+                <li><strong>PhishKit</strong> - Automated phishing framework</li>
+                <li><strong>WebShellDetector</strong> - Identifies web shells on servers</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Video Player Window -->
+    <div class="window" id="videos-window" style="width: 600px; height: 480px; top: 150px; left: 260px;">
+        <div class="window-title-bar">
+            <div class="window-title">
+                <svg width="16" height="16" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="videoGradSmall" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ff0000;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#8b0000;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="4" y="8" width="24" height="16" rx="1" fill="#000" stroke="#333" stroke-width="0.5"/>
+                    <rect x="5" y="9" width="22" height="14" fill="url(#videoGradSmall)"/>
+                    <polygon points="13,12 13,21 21,16.5" fill="#fff" stroke="#000" stroke-width="0.5"/>
+                </svg>
+                <span>YouTube - 0days Channel</span>
+            </div>
+            <div class="window-controls">
+                <div class="window-button minimize">_</div>
+                <div class="window-button maximize">□</div>
+                <div class="window-button close">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <h1>0days YouTube Channel (6.4K+ Subscribers)</h1>
+            <p style="margin-bottom: 16px;"><strong>Bug Bounty & Web Application Security Tutorials</strong></p>
+            
+            <h2>📺 Latest Videos</h2>
+            <p style="font-size: 10px; color: #666; margin-bottom: 12px;">Click links to watch on YouTube - Update these URLs with your actual video links</p>
+            
+            <div class="section-box" style="margin-bottom: 8px;">
+                <p><strong>🎯 Account Takeover via Punycode / IDN Homograph Attack</strong></p>
+                <p style="font-size: 10px;">Zero-click ATO using email normalization inconsistencies</p>
+                <p><a href="https://youtube.com/@0days" target="_blank">Watch on YouTube →</a></p>
+            </div>
+            
+            <div class="section-box" style="margin-bottom: 8px;">
+                <p><strong>🔥 WAF Bypass Techniques for XSS</strong></p>
+                <p style="font-size: 10px;">Advanced XSS payload encoding to evade Web Application Firewalls</p>
+                <p><a href="https://youtube.com/@0days" target="_blank">Watch on YouTube →</a></p>
+            </div>
+            
+            <div class="section-box" style="margin-bottom: 8px;">
+                <p><strong>🛠️ XSSniper Tool Tutorial</strong></p>
+                <p style="font-size: 10px;">Automated XSS detection and WAF bypass for bug bounty</p>
+                <p><a href="https://youtube.com/@0days" target="_blank">Watch on YouTube →</a></p>
+            </div>
+            
+            <div class="section-box" style="margin-bottom: 8px;">
+                <p><strong>🔍 OSINT with Sherlock</strong></p>
+                <p style="font-size: 10px;">Find anyone's social media accounts across 300+ platforms</p>
+                <p><a href="https://youtube.com/@0days" target="_blank">Watch on YouTube →</a></p>
+            </div>
+            
+            <div class="section-box" style="margin-bottom: 8px;">
+                <p><strong>💣 Finding Critical XSS in 10 Minutes</strong></p>
+                <p style="font-size: 10px;">Real bug bounty find on a karting website</p>
+                <p><a href="https://youtube.com/@0days" target="_blank">Watch on YouTube →</a></p>
+            </div>
+            
+            <div class="section-box" style="margin-bottom: 8px;">
+                <p><strong>🎭 Password Wordlist Generation with CUPP</strong></p>
+                <p style="font-size: 10px;">Create targeted password lists for penetration testing</p>
+                <p><a href="https://youtube.com/@0days" target="_blank">Watch on YouTube →</a></p>
+            </div>
+            
+            <div class="section-box" style="margin-bottom: 8px;">
+                <p><strong>🚨 British Airways Security Vulnerability Disclosure</strong></p>
+                <p style="font-size: 10px;">How I found and responsibly disclosed a high-severity bug</p>
+                <p><a href="https://youtube.com/@0days" target="_blank">Watch on YouTube →</a></p>
+            </div>
+            
+            <h2 style="margin-top: 16px;">📢 Subscribe for More</h2>
+            <p><a href="https://youtube.com/@0days" target="_blank" style="font-weight: bold;">youtube.com/@0days</a></p>
+            <p style="font-size: 10px;">Weekly bug bounty tutorials, web security, and offensive security content</p>
+        </div>
+    </div>
+
+    <!-- Contact Window -->
+    <div class="window" id="contact-window" style="width: 450px; height: 320px; top: 180px; left: 320px;">
+        <div class="window-title-bar">
+            <div class="window-title">
+                <svg width="16" height="16" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="mailGradSmall" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffffcc;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ffff99;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="4" y="9" width="24" height="15" rx="0.5" fill="url(#mailGradSmall)" stroke="#000" stroke-width="0.5"/>
+                    <path d="M4 9 L16 18 L28 9" fill="none" stroke="#000" stroke-width="0.5"/>
+                </svg>
+                <span>Contact Information</span>
+            </div>
+            <div class="window-controls">
+                <div class="window-button minimize">_</div>
+                <div class="window-button maximize">□</div>
+                <div class="window-button close">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <h1>Get In Touch</h1>
+            
+            <h2>Professional Contact</h2>
+            <div class="section-box">
+                <p><strong>Email:</strong> security@yourname.com</p>
+                <p><strong>PGP Key:</strong> 0x1234567890ABCDEF</p>
+                <p><strong>LinkedIn:</strong> linkedin.com/in/yourprofile</p>
+                <p><strong>Twitter:</strong> @yoursechandle</p>
+            </div>
+            
+            <h2>Security Research</h2>
+            <div class="section-box">
+                <p><strong>GitHub:</strong> github.com/yourusername</p>
+                <p><strong>Blog:</strong> yoursecblog.com</p>
+                <p><strong>HackTheBox:</strong> Top 100 Ranked</p>
+                <p><strong>TryHackMe:</strong> All Offensive Paths Complete</p>
+            </div>
+            
+            <h2>Responsible Disclosure</h2>
+            <p>For security vulnerability reports, please use encrypted email with my PGP key. I follow responsible disclosure practices and maintain confidentiality.</p>
+            
+            <p><strong>Bug Bounty Profiles:</strong> HackerOne, Bugcrowd, Synack Red Team</p>
+        </div>
+    </div>
+
+    <!-- Terminal Window -->
+    <div class="window" id="terminal-window" style="width: 600px; height: 400px; top: 100px; left: 150px;">
+        <div class="window-title-bar">
+            <div class="window-title">
+                <svg width="16" height="16" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="termGradSmall" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="32" height="32" rx="1" fill="url(#termGradSmall)" stroke="#333" stroke-width="0.5"/>
+                    <rect x="2" y="4" width="28" height="2" fill="#0000aa"/>
+                    <text x="5" y="12" fill="#00ff00" font-family="monospace" font-size="6">C:\></text>
+                </svg>
+                <span>MS-DOS Prompt</span>
+            </div>
+            <div class="window-controls">
+                <div class="window-button minimize">_</div>
+                <div class="window-button maximize">□</div>
+                <div class="window-button close">×</div>
+            </div>
+        </div>
+        <div class="window-content" style="background: #000; color: #c0c0c0; font-family: 'Courier New', monospace; font-size: 12px; padding: 8px; overflow-y: auto;">
+            <div id="terminal-output">Microsoft(R) Windows 95
+(C)Copyright Microsoft Corp 1981-1995.
+
+JavaScript Execution Environment Enabled
+Type 'help' for available commands or execute JavaScript directly
+
+C:\WINDOWS></div>
+            <div style="display: flex;">
+                <span id="terminal-prompt" style="color: #c0c0c0;">C:\WINDOWS></span>
+                <input type="text" id="terminal-input" style="flex: 1; background: transparent; border: none; outline: none; color: #c0c0c0; font-family: 'Courier New', monospace; font-size: 12px; padding: 0; margin-left: 4px;" autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <!-- Recycle Bin Window -->
+    <div class="window" id="recycle-window" style="width: 400px; height: 250px; top: 210px; left: 380px;">
+        <div class="window-title-bar">
+            <div class="window-title">
+                <svg width="16" height="16" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="binGradSmall" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#e0e0e0;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#a0a0a0;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="9" y="13" width="14" height="15" rx="1" fill="url(#binGradSmall)" stroke="#000" stroke-width="0.5"/>
+                    <rect x="10" y="10" width="12" height="3" fill="#808080" stroke="#000" stroke-width="0.5"/>
+                    <rect x="13" y="8" width="6" height="2" rx="1" fill="#666" stroke="#000" stroke-width="0.5"/>
+                </svg>
+                <span>Recycle Bin</span>
+            </div>
+            <div class="window-controls">
+                <div class="window-button minimize">_</div>
+                <div class="window-button maximize">□</div>
+                <div class="window-button close">×</div>
+            </div>
+        </div>
+        <div class="window-content">
+            <h1>Recycle Bin</h1>
+            <p style="text-align: center; margin-top: 60px; color: #808080;">
+                <svg width="48" height="48" viewBox="0 0 32 32" style="opacity: 0.3; display: inline-block;">
+                    <defs>
+                        <linearGradient id="binGradEmpty" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#e0e0e0;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#a0a0a0;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="9" y="13" width="14" height="15" rx="1" fill="url(#binGradEmpty)" stroke="#000" stroke-width="0.5"/>
+                    <rect x="10" y="10" width="12" height="3" fill="#808080" stroke="#000" stroke-width="0.5"/>
+                    <rect x="13" y="8" width="6" height="2" rx="1" fill="#666" stroke="#000" stroke-width="0.5"/>
+                    <rect x="12" y="16" width="2" height="8" fill="#4169e1" opacity="0.3"/>
+                    <rect x="18" y="16" width="2" height="8" fill="#4169e1" opacity="0.3"/>
+                </svg>
+            </p>
+            <p style="text-align: center; color: #808080; margin-top: 20px;">The Recycle Bin is empty.</p>
+        </div>
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="start-button" id="start-button">
+            <svg class="start-icon" width="16" height="16" viewBox="0 0 16 16">
+                <rect x="1" y="1" width="6" height="6" fill="#ff0000"/>
+                <rect x="9" y="1" width="6" height="6" fill="#00ff00"/>
+                <rect x="1" y="9" width="6" height="6" fill="#0000ff"/>
+                <rect x="9" y="9" width="6" height="6" fill="#ffff00"/>
+            </svg>
+            <span>Start</span>
+        </div>
+        <div class="taskbar-divider"></div>
+        <div class="taskbar-buttons" id="taskbar-buttons"></div>
+        <div class="taskbar-clock" id="clock">12:00 PM</div>
+    </div>
+
+    <!-- Start Menu -->
+    <div class="start-menu" id="start-menu">
+        <div class="start-menu-sidebar">Windows<span style="font-weight: normal;">95</span></div>
+        <div class="start-menu-items">
+            <div class="start-menu-item" data-window="about">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="userGradMenu" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#4169e1;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="4" y="4" width="24" height="24" fill="url(#userGradMenu)" stroke="#000" stroke-width="0.5"/>
+                    <circle cx="16" cy="12" r="5" fill="#ffd700" stroke="#000" stroke-width="0.5"/>
+                    <path d="M8 24 Q8 18 16 18 Q24 18 24 24 Z" fill="#ffd700" stroke="#000" stroke-width="0.5"/>
+                    <circle cx="14" cy="11" r="1" fill="#000"/>
+                    <circle cx="18" cy="11" r="1" fill="#000"/>
+                </svg>
+                <span>About Me</span>
+            </div>
+            <div class="start-menu-item" data-window="exploits">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <defs>
+                        <radialGradient id="bombGradMenu">
+                            <stop offset="0%" style="stop-color:#ff4444;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#8b0000;stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+                    <ellipse cx="16" cy="21" rx="2" ry="1" fill="#333" opacity="0.3"/>
+                    <circle cx="16" cy="20" r="8" fill="url(#bombGradMenu)" stroke="#000" stroke-width="0.5"/>
+                    <circle cx="13" cy="18" r="2" fill="#ff6666" opacity="0.6"/>
+                    <rect x="14.5" y="6" width="3" height="10" fill="#654321" stroke="#000" stroke-width="0.5"/>
+                    <ellipse cx="16" cy="6" rx="2" ry="1.5" fill="#ffa500"/>
+                    <circle cx="16" cy="3" r="1" fill="#ffff00"/>
+                </svg>
+                <span>Exploits</span>
+            </div>
+            <div class="start-menu-item" data-window="tools">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="toolGradMenu" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#c0c0c0;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#808080;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="7" y="15" width="4" height="13" fill="url(#toolGradMenu)" stroke="#000" stroke-width="0.5"/>
+                    <rect x="6" y="13" width="6" height="4" fill="#8b4513" stroke="#000" stroke-width="0.5"/>
+                    <path d="M20 8 L28 8 L28 11 L20 11 Z" fill="url(#toolGradMenu)" stroke="#000" stroke-width="0.5" transform="rotate(45 24 9.5)"/>
+                    <circle cx="24" cy="10" r="3.5" fill="#c0c0c0" stroke="#000" stroke-width="0.5"/>
+                </svg>
+                <span>Security Tools</span>
+            </div>
+            <div class="start-menu-item" data-window="videos">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="videoGradStart" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ff0000;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#8b0000;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="4" y="8" width="24" height="16" rx="1" fill="#000" stroke="#333" stroke-width="0.5"/>
+                    <rect x="5" y="9" width="22" height="14" fill="url(#videoGradStart)"/>
+                    <polygon points="13,12 13,21 21,16.5" fill="#fff" stroke="#000" stroke-width="0.5"/>
+                </svg>
+                <span>Video Player</span>
+            </div>
+            <div class="start-menu-item" data-window="contact">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="mailGradMenu" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffffcc;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ffff99;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="4" y="9" width="24" height="15" rx="0.5" fill="url(#mailGradMenu)" stroke="#000" stroke-width="0.5"/>
+                    <path d="M4 9 L16 18 L28 9" fill="none" stroke="#000" stroke-width="0.5"/>
+                    <rect x="10" y="13" width="12" height="1" fill="#dc143c"/>
+                    <rect x="10" y="15" width="12" height="1" fill="#4169e1"/>
+                </svg>
+                <span>Contact</span>
+            </div>
+            <div class="start-menu-item" data-window="terminal">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <defs>
+                        <linearGradient id="termGradMenu" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="32" height="32" rx="1" fill="url(#termGradMenu)" stroke="#333" stroke-width="0.5"/>
+                    <rect x="2" y="4" width="28" height="2" fill="#0000aa"/>
+                    <text x="5" y="12" fill="#00ff00" font-family="monospace" font-size="6" font-weight="bold">C:\></text>
+                    <rect x="4" y="15" width="2" height="6" fill="#00ff00"/>
+                    <path d="M10 16 L14 19 L10 22" stroke="#00ff00" stroke-width="1.5" fill="none"/>
+                </svg>
+                <span>MS-DOS Prompt</span>
+            </div>
+            <div class="start-menu-separator"></div>
+            <div class="start-menu-item" onclick="alert('System shutting down...\n\nThanks for visiting my portfolio!')">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                    <rect x="8" y="8" width="16" height="16" fill="#808080" stroke="#000" stroke-width="1"/>
+                    <circle cx="16" cy="16" r="6" fill="#c00000"/>
+                    <rect x="15" y="10" width="2" height="6" fill="#fff"/>
+                    <path d="M16 16 L16 10" stroke="#fff" stroke-width="2"/>
+                </svg>
+                <span>Shut Down...</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Window Management System
+        let highestZ = 1000;
+        let activeWindow = null;
+        let draggedWindow = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWindows();
+            initializeClock();
+            initializeStartMenu();
+            initializeDesktopIcons();
+            initializeTerminal();
+        });
+
+        function initializeWindows() {
+            const windows = document.querySelectorAll('.window');
+            
+            windows.forEach(window => {
+                const closeBtn = window.querySelector('.close');
+                closeBtn.addEventListener('click', () => closeWindow(window));
+                
+                const minimizeBtn = window.querySelector('.minimize');
+                minimizeBtn.addEventListener('click', () => minimizeWindow(window));
+                
+                const maximizeBtn = window.querySelector('.maximize');
+                maximizeBtn.addEventListener('click', () => maximizeWindow(window));
+                
+                const titleBar = window.querySelector('.window-title-bar');
+                titleBar.addEventListener('mousedown', (e) => startDragging(e, window));
+                
+                window.addEventListener('mousedown', () => activateWindow(window));
+            });
+        }
+
+        function openWindow(windowId) {
+            const window = document.getElementById(windowId + '-window');
+            if (!window) return;
+            
+            window.style.display = 'block';
+            activateWindow(window);
+            updateTaskbar();
+            
+            document.getElementById('start-menu').classList.remove('show');
+            document.getElementById('start-button').classList.remove('active');
+        }
+
+        function closeWindow(window) {
+            window.style.display = 'none';
+            updateTaskbar();
+        }
+
+        function minimizeWindow(window) {
+            window.style.display = 'none';
+            window.classList.remove('active');
+            updateTaskbar();
+        }
+
+        function maximizeWindow(window) {
+            if (window.dataset.maximized === 'true') {
+                window.style.width = window.dataset.originalWidth;
+                window.style.height = window.dataset.originalHeight;
+                window.style.top = window.dataset.originalTop;
+                window.style.left = window.dataset.originalLeft;
+                window.dataset.maximized = 'false';
+            } else {
+                window.dataset.originalWidth = window.style.width;
+                window.dataset.originalHeight = window.style.height;
+                window.dataset.originalTop = window.style.top;
+                window.dataset.originalLeft = window.style.left;
+                
+                window.style.width = '100%';
+                window.style.height = 'calc(100vh - 28px)';
+                window.style.top = '0';
+                window.style.left = '0';
+                window.dataset.maximized = 'true';
+            }
+        }
+
+        function activateWindow(window) {
+            document.querySelectorAll('.window').forEach(w => {
+                w.classList.remove('active');
+                w.classList.add('inactive');
+            });
+            
+            window.classList.add('active');
+            window.classList.remove('inactive');
+            window.style.zIndex = ++highestZ;
+            activeWindow = window;
+            
+            updateTaskbar();
+        }
+
+        function startDragging(e, window) {
+            if (window.dataset.maximized === 'true') return;
+            if (e.target.closest('.window-button')) return;
+            
+            draggedWindow = window;
+            dragOffsetX = e.clientX - window.offsetLeft;
+            dragOffsetY = e.clientY - window.offsetTop;
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDragging);
+        }
+
+        function drag(e) {
+            if (!draggedWindow) return;
+            
+            let newX = e.clientX - dragOffsetX;
+            let newY = e.clientY - dragOffsetY;
+            
+            newX = Math.max(0, Math.min(newX, window.innerWidth - 100));
+            newY = Math.max(0, Math.min(newY, window.innerHeight - 100));
+            
+            draggedWindow.style.left = newX + 'px';
+            draggedWindow.style.top = newY + 'px';
+        }
+
+        function stopDragging() {
+            draggedWindow = null;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDragging);
+        }
+
+        function updateTaskbar() {
+            const taskbarButtons = document.getElementById('taskbar-buttons');
+            taskbarButtons.innerHTML = '';
+            
+            document.querySelectorAll('.window').forEach(window => {
+                if (window.style.display === 'block') {
+                    const button = document.createElement('div');
+                    button.className = 'taskbar-button';
+                    if (window.classList.contains('active')) {
+                        button.classList.add('active');
+                    }
+                    
+                    const titleElement = window.querySelector('.window-title');
+                    const iconElement = titleElement.querySelector('svg') || titleElement.querySelector('img');
+                    const icon = iconElement ? iconElement.cloneNode(true) : null;
+                    const title = titleElement.textContent.trim();
+                    
+                    if (icon) {
+                        button.appendChild(icon);
+                    }
+                    button.appendChild(document.createTextNode(title));
+                    
+                    button.addEventListener('click', () => {
+                        if (window.style.display === 'none') {
+                            window.style.display = 'block';
+                        }
+                        activateWindow(window);
+                    });
+                    
+                    taskbarButtons.appendChild(button);
+                }
+            });
+        }
+
+        function initializeClock() {
+            function updateClock() {
+                const now = new Date();
+                const hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const displayHours = hours % 12 || 12;
+                
+                document.getElementById('clock').textContent = `${displayHours}:${minutes} ${ampm}`;
+            }
+            
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        function initializeStartMenu() {
+            const startButton = document.getElementById('start-button');
+            const startMenu = document.getElementById('start-menu');
+            
+            startButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                startMenu.classList.toggle('show');
+                startButton.classList.toggle('active');
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!startMenu.contains(e.target) && !startButton.contains(e.target)) {
+                    startMenu.classList.remove('show');
+                    startButton.classList.remove('active');
+                }
+            });
+            
+            startMenu.querySelectorAll('.start-menu-item[data-window]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const windowId = item.dataset.window;
+                    openWindow(windowId);
+                });
+            });
+        }
+
+        function initializeDesktopIcons() {
+            const icons = document.querySelectorAll('.desktop-icon');
+            
+            icons.forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    if (!e.shiftKey && !e.ctrlKey) {
+                        icons.forEach(i => i.classList.remove('selected'));
+                    }
+                    icon.classList.add('selected');
+                });
+                
+                icon.addEventListener('dblclick', () => {
+                    const windowId = icon.dataset.window;
+                    openWindow(windowId);
+                });
+            });
+            
+            document.getElementById('desktop').addEventListener('click', (e) => {
+                if (e.target.id === 'desktop') {
+                    icons.forEach(i => i.classList.remove('selected'));
+                }
+            });
+        }
+
+        function initializeTerminal() {
+            const terminalInput = document.getElementById('terminal-input');
+            const terminalOutput = document.getElementById('terminal-output');
+            const terminalPrompt = document.getElementById('terminal-prompt');
+            
+            const commands = {
+                'help': `Available DOS Commands:
+  HELP      - Display this help message
+  WHOAMI    - Display current user information
+  DIR       - List directory contents
+  NETSTAT   - Display network connections
+  IPCONFIG  - Display network configuration
+  TREE      - Display directory tree
+  VER       - Display Windows version
+  DATE      - Display current date
+  TIME      - Display current time
+  CLS       - Clear the screen
+  EXIT      - Close the terminal
+  
+JavaScript Execution:
+  Type any valid JavaScript to execute it directly
+  Examples: 
+    alert('Hello World')
+    Math.sqrt(144)
+    new Date().toISOString()`,
+                
+                'whoami': `DESKTOP-SECURITY\\jacksonmittag
+
+User accounts for \\\\DESKTOP-SECURITY
+
+Administrator            Guest                    jacksonmittag            
+The command completed successfully.`,
+
+                'dir': `Volume in drive C is WIN95
+ Volume Serial Number is 1337-BEEF
+
+ Directory of C:\\WINDOWS
+
+.              <DIR>        02-06-26  12:00p
+..             <DIR>        02-06-26  12:00p
+EXPLOITS       <DIR>        02-06-26  10:30a
+BUGBOUNTY      <DIR>        02-06-26  11:15a
+TOOLS          <DIR>        02-06-26  09:45a
+HOMELAB        <DIR>        02-05-26   8:30a
+ACCTAKEOVER TXT     6,969   02-01-26   2:15p
+PUNYCODE   EXE     13,337   01-28-26   4:20p
+BRITISHAIRWAYS PDF  4,200   01-15-26   3:30p
+BURPSUITE  PRO    420,000   02-02-26  12:00p
+       4 file(s)        444,506 bytes
+       6 dir(s)   6,942,069,420 bytes free`,
+
+                'netstat': `Active Connections
+
+  Proto  Local Address          Foreign Address        State
+  TCP    192.168.1.100:443      bugcrowd.com:443       ESTABLISHED
+  TCP    192.168.1.100:8080     hackerone.com:443      ESTABLISHED
+  TCP    192.168.1.100:31337    youtube.com:443        ESTABLISHED
+  TCP    192.168.1.100:1337     github.com:443         ESTABLISHED
+  UDP    192.168.1.100:53       protonmail.com:53      ESTABLISHED`,
+
+                'ipconfig': `Windows 95 IP Configuration
+
+Ethernet adapter Bug Bounty Hunter:
+
+   IP Address. . . . . . . . . : 192.168.1.100
+   Subnet Mask . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . : 192.168.1.1
+   DNS Servers . . . . . . . . : 1.1.1.1
+                                 8.8.8.8
+   
+   MAC Address . . . . . . . . : 0D-AY-5E-CU-R1-TY
+   DHCP Enabled. . . . . . . . : Yes
+   Homelab Config. . . . . . . : Pi-hole + Reverse Proxy
+   Security Status . . . . . . : Hardened & Debloated
+   Lease Expires . . . . . . . : Never (Persistence Achieved)`,
+
+                'tree': `Folder PATH listing for volume WIN95
+Volume serial number is 1337-BEEF
+C:\\WINDOWS
+├───EXPLOITS
+│   ├───AccountTakeover
+│   ├───AuthBypass
+│   ├───PunycodeAbuse
+│   └───XSS-Payloads
+├───BUGBOUNTY
+│   ├───BritishAirways
+│   ├───PrivatePrograms
+│   └───Reports
+├───TOOLS
+│   ├───BurpSuite-Pro
+│   ├───ffuf
+│   ├───SecLists
+│   ├───Hashcat
+│   └───CustomScripts
+└───HOMELAB
+    ├───Kali-Linux
+    ├───Arch-Linux
+    ├───FreeBSD-OPSEC
+    └───VMware-Labs`,
+
+                'ver': `Microsoft Windows 95 [Version 4.00.950]
+(C)Copyright Microsoft Corp 1981-1995.
+
+PENETRATION TESTER EDITION - BUILD 31337
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Customization: Jackson Mittag (@0days)
+Focus: Web Application Security
+Bug Bounty: ACTIVE
+JavaScript Engine: ENABLED
+All Payloads Loaded Successfully`,
+
+                'date': `Current date is ${new Date().toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' })}
+Enter new date (mm-dd-yy): Access Denied - Time is relative in bug bounty!`,
+
+                'time': `Current time is ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+Enter new time: Time manipulation requires elevated privileges!`,
+
+                'cls': 'CLEAR_SCREEN',
+                
+                'clear': 'CLEAR_SCREEN'
+            };
+
+            terminalInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const input = terminalInput.value.trim();
+                    const commandLower = input.toLowerCase();
+                    const outputLine = terminalPrompt.textContent + input;
+                    
+                    terminalInput.value = '';
+                    
+                    if (input === '') {
+                        terminalOutput.innerHTML += '\n' + terminalPrompt.textContent;
+                        scrollTerminal();
+                        return;
+                    }
+                    
+                    terminalOutput.innerHTML += '\n' + outputLine;
+                    
+                    // Handle built-in DOS commands
+                    if (commandLower === 'cls' || commandLower === 'clear') {
+                        terminalOutput.innerHTML = 'C:\\WINDOWS>';
+                        scrollTerminal();
+                        return;
+                    } else if (commandLower === 'exit') {
+                        closeWindow(document.getElementById('terminal-window'));
+                        return;
+                    } else if (commands[commandLower]) {
+                        terminalOutput.innerHTML += '\n' + commands[commandLower] + '\n\n' + terminalPrompt.textContent;
+                        scrollTerminal();
+                        return;
+                    }
+                    
+                    // Try to execute as JavaScript
+                    try {
+                        const result = eval(input);
+                        if (result !== undefined) {
+                            terminalOutput.innerHTML += '\n' + String(result) + '\n\n' + terminalPrompt.textContent;
+                        } else {
+                            terminalOutput.innerHTML += '\n' + terminalPrompt.textContent;
+                        }
+                    } catch (error) {
+                        terminalOutput.innerHTML += '\nBad command or file name\n\n' + terminalPrompt.textContent;
+                    }
+                    
+                    scrollTerminal();
+                }
+            });
+            
+            function scrollTerminal() {
+                const terminalContent = document.getElementById('terminal-window').querySelector('.window-content');
+                terminalContent.scrollTop = terminalContent.scrollHeight;
+            }
+            
+            // Auto-focus terminal input when window is activated
+            document.getElementById('terminal-window').addEventListener('mousedown', function() {
+                setTimeout(() => terminalInput.focus(), 10);
+            });
+        }
+    </script>
+</body>
+</html>
